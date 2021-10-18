@@ -15,83 +15,92 @@ namespace SmartSchool.API.Controllers
     [ApiController]
     public class AlunoController : ControllerBase
     {
-        public SmartContext Context { get; }
+        public IRepository Repo { get; }
 
-        public AlunoController(SmartContext context)
+        public AlunoController(IRepository repo)
         {
-            Context = context;
+            Repo = repo;
         }
 
         // GET: api/aluno
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(Context.Alunos);
+            var result = Repo.GetAllAlunos(true);
+            return Ok(result);
         }
 
         // GET api/aluno/id
-        [HttpGet("byId/{id}")]
+        [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var aluno = Context.Alunos.FirstOrDefault(a => a.Id == id);
+            var aluno = Repo.GetAlunoById(id, true);
             if (aluno == null) return BadRequest("Aluno não encontrado!!!");
 
             return Ok(aluno);
         }
 
-        // GET api/aluno/byName?nome=Nome&sobrenome=Sobrenome
-        [HttpGet("byName")]
-        public IActionResult GetByName(string nome, string sobrenome)
-        {
-            var aluno = Context.Alunos.FirstOrDefault(a => a.Nome.Contains(nome) && a.Sobrenome.Contains(sobrenome));
-            if (aluno == null) return BadRequest("Aluno não encontrado!!!");
-
-            return Ok(aluno);
-        }
 
         // POST api/aluno
         [HttpPost]
         public IActionResult Post(Aluno aluno)
         {
-            Context.Add(aluno);
-            Context.SaveChanges();
-            return Ok(aluno);
+            Repo.Add(aluno);
+            if (Repo.SaveChanges())
+            {
+                return Ok(aluno);
+            }
+
+            return BadRequest("Aluno não cadastrado");
+            
         }
 
         // PUT api/aluno/5
         [HttpPut("{id}")]
         public IActionResult Put(int id, Aluno aluno)
         {
-            var alu = Context.Alunos.AsNoTracking().FirstOrDefault(a => a.Id == id);
+            var alu = Repo.GetAlunoById(id);
             if (alu == null) return BadRequest("Aluno não encontrado");
 
-            Context.Update(aluno);
-            Context.SaveChanges();
-            return Ok(aluno);
+            Repo.Update(aluno);
+            if (Repo.SaveChanges())
+            {
+                return Ok(aluno);
+            }
+
+            return BadRequest("Aluno não atualizado");
         }
 
         // PATCH api/aluno/5
         [HttpPatch("{id}")]
         public IActionResult Patch(int id, Aluno aluno)
         {
-            var alu = Context.Alunos.AsNoTracking().FirstOrDefault(a => a.Id == id);
+            var alu = Repo.GetAlunoById(id);
             if (alu == null) return BadRequest("Aluno não encontrado");
 
-            Context.Update(aluno);
-            Context.SaveChanges();
-            return Ok(aluno);
+            Repo.Update(aluno);
+            if (Repo.SaveChanges())
+            {
+                return Ok(aluno);
+            }
+
+            return BadRequest("Aluno não atualizado");
         }
 
         // DELETE api/aluno/5
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var aluno = Context.Alunos.FirstOrDefault(a => a.Id == id);
+            var aluno = Repo.GetAlunoById(id);
             if (aluno == null) return BadRequest("Aluno não encontrado");
+            
+            Repo.Delete(aluno);
+            if (Repo.SaveChanges())
+            {
+                return Ok("Aluno deletado");
+            }
 
-            Context.Remove(aluno);
-            Context.SaveChanges();
-            return Ok();
+            return BadRequest("Aluno não deletado");
         }
     }
 }
