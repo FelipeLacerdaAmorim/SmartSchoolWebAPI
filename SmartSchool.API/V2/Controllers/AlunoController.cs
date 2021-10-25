@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.API.Data;
-using SmartSchool.API.Dtos;
+using SmartSchool.API.V2.Dtos;
 using SmartSchool.API.Models;
 using System;
 using System.Collections.Generic;
@@ -11,10 +11,12 @@ using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace SmartSchool.API.Controllers
+namespace SmartSchool.API.V2.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("2.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+
     public class AlunoController : ControllerBase
     {
         public IRepository Repo { get; }
@@ -25,7 +27,10 @@ namespace SmartSchool.API.Controllers
             Repo = repo;
             Mapper = mapper;
         }
-
+        /// <summary>
+        /// Método responsável por retornar todos os alunos.
+        /// </summary>
+        /// <returns></returns>
         // GET: api/aluno
         [HttpGet]
         public IActionResult Get()
@@ -34,14 +39,22 @@ namespace SmartSchool.API.Controllers
             
             return Ok(Mapper.Map<IEnumerable<AlunoDto>>(alunos));
         }
-        //Rota Teste
+
+        /// <summary>
+        /// Método para exibir no Postman o formato padrão do AlunoRegistrarDto(Entrada).
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("getRegister")]
         public IActionResult GetRegister()
         {
             return Ok(new AlunoRegistrarDto());
         }
 
-        // GET api/aluno/id
+        /// <summary>
+        /// Método que retorna o aluno que possui a Id passada.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
