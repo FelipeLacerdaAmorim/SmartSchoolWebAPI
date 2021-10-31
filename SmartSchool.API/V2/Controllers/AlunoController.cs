@@ -36,7 +36,6 @@ namespace SmartSchool.API.V2.Controllers
         public IActionResult Get()
         {
             var alunos = Repo.GetAllAlunos(true);
-            
             return Ok(Mapper.Map<IEnumerable<AlunoDto>>(alunos));
         }
 
